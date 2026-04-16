@@ -1,30 +1,48 @@
 import type { IUser } from "../../../types/IUser";
-import type { Rol } from "../../../types/Rol";
-import { navigate } from "../../../utils/navigate";
+import { Rol } from "../../../types/Rol";
 
-const form = document.getElementById("form") as HTMLFormElement;
-const inputEmail = document.getElementById("email") as HTMLInputElement;
-//const inputPassword = document.getElementById("password") as HTMLInputElement;
-const selectRol = document.getElementById("rol") as HTMLSelectElement;
+const formLogin = document.querySelector<HTMLFormElement>("#form-login");
 
-form.addEventListener("submit", (e: SubmitEvent) => {
-  e.preventDefault();
-  const valueEmail = inputEmail.value;
-  //const valuePassword = inputPassword.value;
-  const valueRol = selectRol.value as Rol;
+formLogin?.addEventListener("submit", (e: SubmitEvent) => {
+    e.preventDefault();
 
-  if (valueRol === "admin") {
-    navigate("/src/pages/admin/home/home.html");
-  } else if (valueRol === "client") {
-    navigate("/src/pages/client/home/home.html");
-  }
+    try {
+        const formData = new FormData(formLogin);
+        const emailLogin = formData.get("email") as string;
+        const passwordLogin = formData.get("password") as string;
 
-  const user: IUser = {
-    email: valueEmail,
-    role: valueRol,
-    loggedIn: true,
-  };
+        if (!emailLogin || !passwordLogin) {
+             throw new Error("El email y la contraseña son obligatorios.");
+        }
 
-  const parseUser = JSON.stringify(user);
-  localStorage.setItem("userData", parseUser);
+        const usuariosGuardados = localStorage.getItem("users");
+        const arrayUsuarios: IUser[] = usuariosGuardados ? JSON.parse(usuariosGuardados) : [];
+
+        const usuarioAutenticado = arrayUsuarios.find(
+            (user) => user.email === emailLogin && user.password === passwordLogin
+        );
+
+        if (usuarioAutenticado) {
+            // Guardamos la sesión
+            localStorage.setItem("userData", JSON.stringify(usuarioAutenticado));
+
+            alert(`¡Bienvenido, ${usuarioAutenticado.email}!`);
+
+            // Redirigimos según el rol
+            if (usuarioAutenticado.role === Rol.ADMIN) {
+                // Como el login está en /src/pages/auth/login/, subimos 3 niveles para llegar a /src/pages/
+                window.location.replace("../../admin/home/home.html");
+            } else {
+                window.location.replace("../../client/home/home.html");
+            }
+        } else {
+             // Credenciales incorrectas
+             alert("Credenciales incorrectas. Verifica tu email y contraseña.");
+             formLogin.reset();
+        }
+
+    } catch (error: any) {
+         console.error("Error en el login:", error);
+         alert(error.message || "Ocurrió un error al intentar iniciar sesión.");
+    }
 });
