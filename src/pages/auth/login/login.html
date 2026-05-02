@@ -1,28 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Food Store</title>
+
+    <link rel="stylesheet" href="../../../utils/style.css">
 </head>
 
 <body>
-<h1>Iniciar Sesión</h1>
-
-<form id="form-login">
-    <div>
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required autocomplete="off" placeholder="example@example.com">
-    </div>
-    <div>
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" name="password" required autocomplete="off" placeholder="********">
+<div class="login-wrapper">
+<div class="login-container">
+    <div class="login-header">
+        <h1>🍔 Food Store</h1>
+        <p>Iniciar Sesión</p>
     </div>
 
-    <button type="submit">Ingresar</button>
-    <p>¿No tienes cuenta? <a href="../registro/registro.html">Regístrate aquí</a></p>
-</form>
+    <form id="form-login" class="login-form">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" placeholder="********" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Ingresar</button>
+    </form>
+
+    <div class="login-footer">
+        <p>¿No tenés cuenta? <a href="../registro/registro.html">Registrate</a></p>
+    </div>
+</div>
+
+<div id="custom-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+        <div class="modal-icon">🍔</div>
+        <h3 id="modal-title">Título</h3>
+        <p id="modal-message">Mensaje de aviso.</p>
+        <div class="modal-actions">
+            <button id="modal-btn-confirm" class="btn-modal-primary">Aceptar</button>
+        </div>
+    </div>
+</div>
+</div>
 
 <script type="module" src="./login.ts"></script>
 </body>
