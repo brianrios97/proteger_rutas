@@ -2,6 +2,11 @@
 
 Aplicación web dinámica de pedidos de comida desarrollada con **TypeScript** y **Vite**. Este proyecto implementa un flujo completo de cliente: desde la autenticación hasta la gestión de pedidos, utilizando **localStorage** para la persistencia de datos y una arquitectura modular, aplicando buenas prácticas de diseño frontend.
 
+---
+🎥 **Video de Presentación:** [Ver defensa del proyecto en YouTube](https://www.youtube.com/watch?v=z3HPg48IdZY)
+
+---
+
 ## ✍️ Descripción del Proyecto
 
 Este es un proyecto integrador desarrollado para la Evaluación 1 de Programación III. A partir del repositorio base educativo enfocado en la protección de rutas, se expandió el código para incluir un catálogo dinámico completo con funcionalidades e-commerce funcionales.
