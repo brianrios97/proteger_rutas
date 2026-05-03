@@ -1,9 +1,12 @@
 // src/utils/header.ts
 import { showModal } from './modal';
+// 👇 1. Importamos las funciones centralizadas
+import { logout } from './auth';
+import { getUSer } from './localStorage';
 
 export function initHeader() {
-    // 1. Protección de ruta global
-    const usuarioActual = localStorage.getItem('userData');
+    // 1. Protección de ruta (Traemos al usuario con la función de utilería)
+    const usuarioActual = getUSer();
     if (!usuarioActual) {
         window.location.replace('/src/pages/auth/login/login.html');
         throw new Error("Usuario no logueado, deteniendo ejecución.");
@@ -21,11 +24,11 @@ export function initHeader() {
 
     // 4. Logout
     btnLogout?.addEventListener('click', async () => {
+        // Mantenemos tu genial idea del modal de confirmación
         const confirmacion = await showModal('Cerrar Sesión', '¿Estás seguro de que querés salir?');
         if (confirmacion) {
-            localStorage.removeItem('userData');
-            localStorage.removeItem('cart');
-            window.location.replace('/src/pages/auth/login/login.html');
+            // 👇 2. DELEGAMOS LA TAREA AL SERVICIO DE AUTH
+            logout();
         }
     });
 }

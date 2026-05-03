@@ -6,9 +6,18 @@ import { showModal } from '../../../utils/modal';
 import { initHeader } from '../../../utils/header';
 import { initMiniCart, updateCartCount, renderMiniCart } from '../../../utils/miniCart';
 
+// 👇 1.5 IMPORTAMOS LA AUTENTICACIÓN Y EL ROL
+import { checkAuhtUser } from '../../../utils/auth';
+import { Rol } from '../../../types/Rol';
+
 // 👇 2. Inicializamos Header y Mini Carrito automáticamente
 initHeader();
 initMiniCart();
+
+// 👇 2.5 PROTECCIÓN DE RUTA (¡La pieza clave!)
+// Si no está logueado -> Login
+// Si tiene un rol que no es CLIENT (ej. admin) -> Login (o a donde decidas)
+checkAuhtUser('/src/pages/auth/login/login.html', '/src/pages/auth/login/login.html', Rol.CLIENT);
 
 // --- 3. REFERENCIAS AL DOM GLOBALES ---
 const productGrid = document.getElementById('product-grid') as HTMLDivElement;
@@ -150,6 +159,10 @@ function renderCategories() {
             target.classList.add('active');
             const idAttr = target.getAttribute('data-id');
             currentCategory = idAttr === 'todas' ? 'todas' : Number(idAttr);
+            if (currentCategory === 'todas') {
+                if (searchInput) searchInput.value = ''; // Limpia lo visual
+                currentSearch = ''; // Limpia el estado interno
+            }
             applyFilters();
         });
     });

@@ -1,14 +1,20 @@
 import type { Product } from '../../../types/product';
+// 👇 1. Importamos la nueva interfaz global (¡El profe va a estar orgulloso!)
+import type { CartItem } from '../../../types/CartItem';
 
-// 👇 1. Importamos la lógica compartida
 import { showModal } from '../../../utils/modal';
 import { initHeader } from '../../../utils/header';
 import { initMiniCart, updateCartCount, renderMiniCart } from '../../../utils/miniCart';
 
-// Definición de tipo para evitar el uso de 'any'
-type CartItem = { product: Product; cantidad: number };
+// 👇 2. Importamos Autenticación y Utilidades
+import { checkAuhtUser } from '../../../utils/auth';
+import { Rol } from '../../../types/Rol';
+import { getUSer } from '../../../utils/localStorage';
 
-// 👇 2. Inicializamos Header y Mini Carrito automáticamente
+// 👇 3. PROTECCIÓN DE RUTA
+checkAuhtUser('/src/pages/auth/login/login.html', '/src/pages/auth/login/login.html', Rol.CLIENT);
+
+// Inicializamos
 initHeader();
 initMiniCart();
 
@@ -105,6 +111,7 @@ function cambiarCantidad(productId: number, cambio: number) {
 }
 
 // --- 5. EVENTOS FINALES (CHECKOUT) ---
+
 btnEmpty?.addEventListener('click', async () => {
     const confirm = await showModal('Vaciar Carrito', '¿Querés borrar todo el pedido?');
     if (confirm) {
@@ -117,16 +124,16 @@ btnBuy?.addEventListener('click', async () => {
     const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
     if (cart.length === 0) return;
 
-    const usuarioActual = localStorage.getItem('userData');
+    // 👇 Usamos getUSer() en lugar de leer el localStorage directo
+    const usuarioActual = getUSer();
     if (!usuarioActual) return;
     const user = JSON.parse(usuarioActual);
 
-    // ✅ Uso estricto de TypeScript en el reduce
     const total = cart.reduce((sum: number, item: CartItem) => sum + (item.product.precio * item.cantidad), 0);
 
     const nuevoPedido = {
         id: 'ORD-' + Date.now().toString().slice(-6),
-        userEmail: user.email, // 🔐 INYECCIÓN DE EMAIL PARA AISLAR EL PEDIDO
+        userEmail: user.email,
         fecha: new Date().toLocaleString('es-AR'),
         timestamp: Date.now(),
         items: cart,
@@ -142,8 +149,5 @@ btnBuy?.addEventListener('click', async () => {
     window.location.href = '/src/pages/store/orders/orders.html';
 });
 
-// 👇 ¡CLAVE DE LA MODULARIZACIÓN! Escucha si el mini-carrito cambia para redibujarse a sí mismo
 window.addEventListener('cartUpdated', renderCartPage);
-
-// Inicializar
 renderCartPage();

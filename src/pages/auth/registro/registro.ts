@@ -1,5 +1,7 @@
 import type { IUser } from "../../../types/IUser";
 import { Rol } from "../../../types/Rol";
+// 👇 1. IMPORTAMOS LA FUNCIÓN DESDE TU ARCHIVO AUTH
+import { registerUser } from "../../../utils/auth";
 
 // --- 1. REFERENCIAS AL DOM Y AL MODAL ---
 const formRegistro = document.querySelector<HTMLFormElement>("#form-registro");
@@ -48,21 +50,16 @@ formRegistro?.addEventListener("submit", async (event: SubmitEvent) => {
             role: Rol.CLIENT
         };
 
-        const usuariosGuardados = localStorage.getItem("users");
-        const arrayUsuarios: IUser[] = usuariosGuardados ? JSON.parse(usuariosGuardados) : [];
+        // 👇 2. ACÁ USAMOS EL SERVICIO CENTRALIZADO (¡Chau a leer el localStorage a mano!)
+        const resultado = await registerUser(nuevoUsuario);
 
-        // Verificar si el usuario ya existe
-        const existe = arrayUsuarios.some(user => user.email === nuevoUsuario.email);
-        if (existe) {
-            await showModal('Email Duplicado', 'Ese correo ya se encuentra registrado. Intentá con otro o iniciá sesión.');
+        // Si la función devuelve success en false, mostramos el error
+        if (!resultado.success) {
+            await showModal('Email Duplicado', resultado.message || 'Ese correo ya se encuentra registrado.');
             return;
         }
 
-        // Guardar nuevo usuario
-        arrayUsuarios.push(nuevoUsuario);
-        localStorage.setItem("users", JSON.stringify(arrayUsuarios));
-
-        // 👇 Feedback de éxito metalizado
+        // 👇 Feedback de éxito metalizado (Si llegó acá, success fue true)
         await showModal('¡Registro Exitoso!', 'Tu cuenta fue creada correctamente. Ahora vamos al inicio de sesión. 🍔');
 
         formRegistro.reset();

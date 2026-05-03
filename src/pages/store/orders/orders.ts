@@ -1,38 +1,47 @@
-// 👇 1. Importamos las utilidades modulares
+// 👇 1. Importamos la interfaz Order y utilidades
+import type { Order } from '../../../types/Order';
 import { initHeader } from '../../../utils/header';
 import { initMiniCart, updateCartCount } from '../../../utils/miniCart';
 
-// 👇 2. Inicializamos el Header (protección, saludo, logout) y el Mini Carrito
+// 👇 2. Importamos Autenticación
+import { checkAuhtUser } from '../../../utils/auth';
+import { Rol } from '../../../types/Rol';
+import { getUSer } from '../../../utils/localStorage';
+
+// 👇 3. PROTECCIÓN DE RUTA
+checkAuhtUser('/src/pages/auth/login/login.html', '/src/pages/auth/login/login.html', Rol.CLIENT);
+
 initHeader();
 initMiniCart();
 
 // --- 3. ESTADO DE PAGINACIÓN ---
 let currentPage = 1;
 const itemsPerPage = 4;
-let fullHistory: any[] = [];
+// 👇 Reemplazamos any[] por Order[]
+let fullHistory: Order[] = [];
 
-// --- 4. REFERENCIAS AL DOM EXCLUSIVAS DE PEDIDOS ---
+// --- 4. REFERENCIAS AL DOM ---
 const ordersList = document.getElementById('orders-list');
 const btnPrev = document.getElementById('btn-prev') as HTMLButtonElement;
 const btnNext = document.getElementById('btn-next') as HTMLButtonElement;
 const pageInfo = document.getElementById('page-info');
 
-// --- 5. LÓGICA EXCLUSIVA DE RENDERIZADO DE PEDIDOS ---
+// --- 5. LÓGICA DE RENDERIZADO ---
 function renderOrders() {
-    // Usamos la función modular para actualizar el numerito rojo
     updateCartCount();
 
     if (!ordersList || !pageInfo) return;
 
-    const userData = localStorage.getItem('userData');
+    // 👇 Usamos getUSer()
+    const userData = getUSer();
     if (!userData) return;
     const user = JSON.parse(userData);
 
     const historyString = localStorage.getItem('orderHistory');
-    let allOrders = historyString ? JSON.parse(historyString) : [];
+    let allOrders: Order[] = historyString ? JSON.parse(historyString) : [];
 
-    // FILTRAMOS: Solo los que pertenecen a este usuario
-    fullHistory = allOrders.filter((order: any) => order.userEmail === user.email);
+    // 👇 Chau any, hola Order tipado estrictamente
+    fullHistory = allOrders.filter((order: Order) => order.userEmail === user.email);
 
     if (fullHistory.length === 0) {
         ordersList.innerHTML = '<p class="empty-msg">Aún no tienes pedidos.</p>';
@@ -48,12 +57,12 @@ function renderOrders() {
     ordersList.innerHTML = '';
     const tiempoActual = Date.now();
 
-    ordersToShow.forEach((order: any) => {
+    ordersToShow.forEach((order: Order) => {
         const estaEntregado = (tiempoActual - order.timestamp) > 60000;
         const div = document.createElement('div');
         div.className = 'order-card';
 
-        const itemsHtml = order.items.map((item: any) =>
+        const itemsHtml = order.items.map((item) =>
             `<p class="order-item">• ${item.cantidad}x ${item.product.nombre}</p>`
         ).join('');
 
@@ -87,7 +96,6 @@ function updatePaginationButtons(totalPages: number) {
     btnNext.disabled = currentPage >= totalPages || totalPages === 0;
 }
 
-// --- 6. EVENTOS DE PAGINACIÓN ---
 btnPrev?.addEventListener('click', () => {
     if (currentPage > 1) { currentPage--; renderOrders(); }
 });
@@ -97,8 +105,5 @@ btnNext?.addEventListener('click', () => {
     if (currentPage < totalPages) { currentPage++; renderOrders(); }
 });
 
-// Refrescar cada 15 segundos para ver si los pedidos cambian a "Entregado"
 setInterval(renderOrders, 15000);
-
-// Inicializar la página de pedidos
 renderOrders();

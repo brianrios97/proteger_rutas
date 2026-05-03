@@ -59,13 +59,27 @@ export function renderMiniCart() {
     });
 }
 
+// Acordate de importar showModal arriba de todo en miniCart.ts si aún no lo tenés:
+// import { showModal } from './modal';
+
 function cambiarCantidadMini(productId: number, cambio: number) {
+    // Nota: si ya importaste la interfaz CartItem, podés usarla acá en vez del tipo largo
     let cart: { product: Product, cantidad: number }[] = JSON.parse(localStorage.getItem('cart') || '[]');
     const index = cart.findIndex(item => item.product.id === productId);
 
     if (index !== -1) {
+        // 👇 ESTA ES LA BARRERA DE STOCK
+        if (cambio > 0 && cart[index].cantidad >= cart[index].product.stock) {
+            // Frena la función y le avisa al usuario
+            showModal('Sin Stock', 'No hay más unidades disponibles de este producto.');
+            return;
+        }
+
+        // Si pasó la barrera (o si está restando), aplica el cambio
         cart[index].cantidad += cambio;
+
         if (cart[index].cantidad <= 0) cart.splice(index, 1);
+
         localStorage.setItem('cart', JSON.stringify(cart));
 
         updateCartCount();
